@@ -1,4 +1,7 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>For Blaze</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -134,6 +137,17 @@ body:not([data-mode="dark"]) .night-only { display: none !important; }
 /* hero */
 .hero { display: grid; gap: 22px; justify-items: start; }
 .lede { font-size: clamp(1.1rem, 2.6vw, 1.35rem); max-width: 30ch; }
+.sweet {
+  display: flex; align-items: center; gap: 14px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 20px;
+  padding: 16px 20px 16px 16px; max-width: 460px;
+  box-shadow: 0 10px 30px var(--glow);
+  transform: rotate(-1.2deg);
+}
+.sweet-heart { flex: none; width: 36px; height: 36px; animation: beat 1.8s ease-in-out infinite; }
+.sweet-txt { font: 600 1.05rem/1.35 var(--font-display); min-width: 0; }
+@keyframes beat { 0%, 100% { transform: scale(1); } 15% { transform: scale(1.18); } 30% { transform: scale(1); } 45% { transform: scale(1.12); } 60% { transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) { .sweet-heart { animation: none; } }
 .switch-row { display: grid; gap: 14px; justify-items: start; margin-top: 8px; }
 .switch {
   --w: 240px; --h: 104px; --pad: 10px; --k: calc(var(--h) - 2 * var(--pad));
@@ -173,8 +187,8 @@ body:not([data-mode="dark"]) .night-only { display: none !important; }
 .cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 28px; }
 @media (max-width: 640px) {
   .cards { grid-template-columns: minmax(0, 1fr); }
-  .card.wide { flex-direction: column; align-items: flex-start; padding-right: 24px; gap: 10px; }
-  .card.wide .txt { padding-right: 56px; }
+  .cards .card.wide { flex-direction: column; align-items: flex-start; padding-right: 24px; gap: 10px; }
+  .cards .card.wide:not(.nostk) .txt { padding-right: 56px; }
 }
 .card {
   background: var(--surface); border: 1px solid var(--line); border-radius: 22px;
@@ -185,6 +199,7 @@ body:not([data-mode="dark"]) .night-only { display: none !important; }
 .stk { position: absolute; top: 14px; right: 14px; width: 46px; height: 46px; transform: rotate(8deg); pointer-events: none; }
 .card.wide { grid-column: 1 / -1; flex-direction: row; align-items: center; gap: 18px; padding-right: 80px; }
 .card.wide .ico { flex: none; color: var(--accent); }
+.card.wide.nostk { padding-right: 24px; }
 .card.wide .txt { display: grid; gap: 6px; min-width: 0; }
 .card .tag { font: 500 0.75rem/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
 .card .ico { width: 64px; height: 64px; }
@@ -226,6 +241,19 @@ body:not([data-mode="dark"]) .night-only { display: none !important; }
 .pg-done { display: grid; justify-items: start; }
 .pg-done[hidden] { display: none; }
 .btn.ghost { background: var(--surface); color: var(--fg); border: 1px solid var(--line); box-shadow: none; }
+
+/* vocabulary, roles, 8-ball */
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.card.word { max-width: 560px; margin-top: 26px; gap: 8px; }
+.card.word h3 { font-size: clamp(1.9rem, 6vw, 2.6rem); overflow-wrap: anywhere; }
+.card.word .eg { margin-top: 4px; padding-top: 0; }
+.card.word .btn { margin-top: 14px; align-self: flex-start; padding: 14px 22px; font-size: 0.95rem; }
+.ball-row { display: flex; flex-wrap: wrap; gap: 12px; margin: 26px 0 18px; max-width: 640px; }
+.field {
+  flex: 1 1 220px; min-width: 0; font: 500 1rem/1.2 var(--font-body); color: var(--fg);
+  background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 16px 20px;
+}
+.field::placeholder { color: var(--muted); opacity: 0.8; }
 
 /* player */
 .player { display: grid; grid-template-columns: minmax(0, 300px) minmax(0, 1fr); gap: 32px; align-items: start; margin-top: 28px; }
@@ -304,7 +332,9 @@ body:not([data-mode="dark"]) .night-only { display: none !important; }
   * { transition-duration: 0.01ms !important; }
 }
 </style>
-
+<style>html{-webkit-text-size-adjust:100%}body{margin:0}img{max-width:100%}</style>
+</head>
+<body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
   <defs>
     <symbol id="s-flower-pink" viewBox="0 0 64 64"><g fill="#F59AB9"><circle cx="32" cy="15" r="11"/><circle cx="48.5" cy="27" r="11"/><circle cx="42" cy="46.5" r="11"/><circle cx="22" cy="46.5" r="11"/><circle cx="15.5" cy="27" r="11"/></g><circle cx="32" cy="32" r="8" fill="#F7B733"/></symbol>
@@ -337,6 +367,40 @@ body:not([data-mode="dark"]) .night-only { display: none !important; }
       <rect x="31" y="24" width="2" height="22" rx="1" fill="#fff"/>
       <path d="M32 24c-2-5-5-7-7-8M32 24c2-5 5-7 7-8" stroke="#fff" stroke-width="1.4" fill="none" stroke-linecap="round"/>
     </symbol>
+    <symbol id="c-wish" viewBox="0 0 64 64">
+      <defs><linearGradient id="g-wish" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3A2A7A"/><stop offset=".6" stop-color="#D9588F"/><stop offset="1" stop-color="#FFB27A"/></linearGradient></defs>
+      <rect width="64" height="64" fill="url(#g-wish)"/>
+      <g fill="#fff" fill-opacity=".8"><circle cx="10" cy="12" r="1"/><circle cx="52" cy="9" r="1.2"/><circle cx="58" cy="26" r=".9"/><circle cx="22" cy="6" r=".8"/></g>
+      <path d="M46 14L22 30" stroke="#fff" stroke-opacity=".5" stroke-width="2" stroke-linecap="round"/>
+      <path d="M49 12l1.6 3.6 3.9.4-2.9 2.6.8 3.8-3.4-2-3.4 2 .8-3.8-2.9-2.6 3.9-.4z" fill="#FFE08A"/>
+      <path d="M0 50q16-10 32-4t32-6v24H0z" fill="#2B1A63"/>
+      <path d="M32 58c-8-5-11-9-11-13a5 5 0 0 1 11-1 5 5 0 0 1 11 1c0 4-3 8-11 13z" fill="#FF7FAE"/>
+    </symbol>
+    <symbol id="c-sing" viewBox="0 0 64 64">
+      <rect width="64" height="64" fill="#FFD36B"/>
+      <circle cx="46" cy="18" r="11" fill="#FF9F43"/>
+      <g stroke="#FF9F43" stroke-width="2.5" stroke-linecap="round"><path d="M46 1v4M46 31v4M29 18h4M59 18h4M34 6l3 3M55 27l3 3M58 6l-3 3M37 27l-3 3"/></g>
+      <path d="M24 46V24l16-4v22" fill="none" stroke="#3A1F2D" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/>
+      <circle cx="19" cy="48" r="6" fill="#3A1F2D"/><circle cx="35" cy="44" r="6" fill="#3A1F2D"/>
+    </symbol>
+    <symbol id="c-waltz" viewBox="0 0 64 64">
+      <rect width="64" height="64" fill="#F4E4F7"/>
+      <path d="M32 32m-22 0a22 22 0 1 0 44 0a22 22 0 1 0-44 0" fill="none" stroke="#C9A6E8" stroke-width="2" stroke-dasharray="3 5"/>
+      <g fill="#7A4FB5">
+        <ellipse cx="32" cy="12" rx="4.5" ry="7" transform="rotate(8 32 12)"/>
+        <ellipse cx="52" cy="32" rx="4.5" ry="7" transform="rotate(98 52 32)"/>
+        <ellipse cx="32" cy="52" rx="4.5" ry="7" transform="rotate(188 32 52)"/>
+        <ellipse cx="12" cy="32" rx="4.5" ry="7" transform="rotate(278 12 32)"/>
+      </g>
+      <circle cx="32" cy="32" r="3" fill="#E8618A"/>
+    </symbol>
+    <symbol id="c-tabi" viewBox="0 0 64 64">
+      <rect width="64" height="64" fill="#9ED8F5"/>
+      <path d="M0 48q16-8 32-2t32-4v22H0z" fill="#5FB36B"/>
+      <circle cx="24" cy="30" r="12" fill="#FFB27A"/>
+      <circle cx="40" cy="30" r="12" fill="#E8618A" fill-opacity=".9"/>
+      <g fill="#fff" fill-opacity=".85"><ellipse cx="12" cy="12" rx="8" ry="3.5"/><ellipse cx="52" cy="10" rx="7" ry="3"/></g>
+    </symbol>
     <symbol id="c-home" viewBox="0 0 64 64">
       <rect width="64" height="64" fill="#101A3E"/>
       <g fill="#fff" fill-opacity=".7"><circle cx="10" cy="10" r="1"/><circle cx="24" cy="6" r="1.2"/><circle cx="50" cy="10" r="1"/><circle cx="40" cy="18" r=".8"/><circle cx="58" cy="24" r="1.1"/></g>
@@ -362,6 +426,13 @@ body:not([data-mode="dark"]) .night-only { display: none !important; }
 
   <header class="hero">
     <h1>Hi, Blaze.</h1>
+    <aside class="sweet" aria-label="A note for you">
+      <svg class="sweet-heart" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 56C12 42 6 30 6 21a14 14 0 0 1 26-7 14 14 0 0 1 26 7c0 9-6 21-26 35z" fill="var(--accent)"/></svg>
+      <p class="sweet-txt">
+        <span class="day-only">Hope your day is going good, Blaze. You deserve a really nice one.</span>
+        <span class="night-only">Hope you had a good day, Blaze. Rest well tonight.</span>
+      </p>
+    </aside>
     <p class="lede">
       <span class="day-only">I made you a small thing. Flip the switch and pick your vibe.</span>
       <span class="night-only">Night mode. Lights down, music up.</span>
@@ -446,6 +517,40 @@ body:not([data-mode="dark"]) .night-only { display: none !important; }
     </div>
   </section>
 
+  <section aria-labelledby="js-h">
+    <h2 id="js-h">Just saying</h2>
+    <p class="sub">No reply needed.</p>
+    <div class="cards">
+
+      <article class="card wide nostk">
+        <svg class="ico" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 4l6.5 21.5L60 32l-21.5 6.5L32 60l-6.5-21.5L4 32l21.5-6.5z" fill="currentColor"/><path d="M52 6l1.6 4.4L58 12l-4.4 1.6L52 18l-1.6-4.4L46 12l4.4-1.6z" fill="var(--accent2)"/></svg>
+        <div class="txt">
+          <h3>Super pretty</h3>
+          <p>You are really pretty. That's all. I just wanted to say it.</p>
+        </div>
+      </article>
+
+      <article class="card">
+        <svg class="ico" viewBox="0 0 64 64" aria-hidden="true">
+          <path d="M12 44L26 22 40 36 54 14" fill="none" stroke="var(--line)" stroke-width="2" stroke-dasharray="3 4" stroke-linecap="round"/>
+          <circle cx="12" cy="44" r="4.5" fill="var(--accent)"/><circle cx="26" cy="22" r="6" fill="var(--accent)"/><circle cx="40" cy="36" r="4" fill="var(--accent)"/><circle cx="54" cy="14" r="5" fill="var(--accent)"/>
+        </svg>
+        <h3>Beauty marks</h3>
+        <p>Yours are pretty. They look like little constellations.</p>
+      </article>
+
+      <article class="card">
+        <svg class="ico" viewBox="0 0 64 64" aria-hidden="true">
+          <path d="M3 32C12 18 22 12 32 12s20 6 29 20c-9 14-19 20-29 20S12 46 3 32z" fill="var(--surface)" stroke="var(--fg)" stroke-width="3" stroke-linejoin="round"/>
+          <circle cx="32" cy="32" r="10.5" fill="var(--accent)"/><circle cx="32" cy="32" r="4.5" fill="var(--fg)"/><circle cx="35.5" cy="28.5" r="2.2" fill="var(--surface)"/>
+        </svg>
+        <h3>Your eyes</h3>
+        <p>Pretty too.</p>
+      </article>
+
+    </div>
+  </section>
+
   <section aria-labelledby="bd-h">
     <h2 id="bd-h">Having a bad day?</h2>
     <p class="sub">Press the button. It picks one at random.</p>
@@ -470,6 +575,30 @@ body:not([data-mode="dark"]) .night-only { display: none !important; }
         <button class="btn" id="pgAgain" type="button">Ulit</button>
       </div>
     </div>
+  </section>
+
+  <section aria-labelledby="vc-h">
+    <h2 id="vc-h">Vocabulary corner</h2>
+    <p class="sub">You have the vocabulary. I'm borrowing some.</p>
+    <article class="card dict word">
+      <p class="tag" id="wCount">Word 1 of 8</p>
+      <h3 id="wWord"></h3>
+      <p class="pron" id="wPron"></p>
+      <p id="wDef"></p>
+      <p class="eg" id="wEg"></p>
+      <button class="btn ghost" id="wNext" type="button">Another word</button>
+    </article>
+  </section>
+
+  <section aria-labelledby="ball-h">
+    <h2 id="ball-h">Ask the 8-ball</h2>
+    <p class="sub">Type a question, or just tap the button.</p>
+    <div class="ball-row">
+      <label class="sr" for="ballQ">Your question</label>
+      <input class="field" id="ballQ" type="text" placeholder="Should I get another pair of sneakers?" autocomplete="off" maxlength="120">
+      <button class="btn" id="ballBtn" type="button">Ask</button>
+    </div>
+    <p class="bd-msg" id="ballA" aria-live="polite">Ask anything. It answers in Taglish.</p>
   </section>
 
   <section aria-labelledby="pl-h">
@@ -531,10 +660,23 @@ body:not([data-mode="dark"]) .night-only { display: none !important; }
     { title: 'Butterflies.', artist: 'Brent Faiyaz', note: 'Night mode only.', link: 'https://open.spotify.com/search/Butterflies%20Brent%20Faiyaz' },
     { title: 'Hold On, We’re Going Home', artist: 'Drake', note: 'Night mode only.', link: 'https://open.spotify.com/search/Hold%20On%2C%20We%27re%20Going%20Home%20Drake' }
   ];
+  /* Track 3 in both modes. It opens on YouTube because the page cannot play YouTube inside itself. */
+  var WISH = { title: 'Wish You Well', artist: 'Brent Faiyaz', note: 'A song I picked for you.', link: 'https://soundcloud.com/srgmp4/wish-you-well?si=6a62650ec4804387bbe9139f64c38743&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing', linkLabel: 'Open on SoundCloud', where: 'on soundcloud', art: 'c-wish' };
   BASE.forEach(function (t, i) { t.art = 'c-' + (i + 1); });
   NIGHT_EXTRA[0].art = 'c-butterfly';
   NIGHT_EXTRA[1].art = 'c-home';
-  var TRACKS = BASE.slice();
+  /* Day mode only, tracks 1 and 2. They open in another tab because the page cannot play outside audio. */
+  var DAY_EXTRA = [
+    { title: 'Sing Along 4 U', artist: 'Waiian', note: 'Day mode only.', link: 'https://on.soundcloud.com/eVUYAefdBpYBTRIt4R', linkLabel: 'Open on SoundCloud', where: 'on soundcloud', art: 'c-sing' },
+    { title: 'Waltz of 4 Left Feet', artist: 'Shirebound', note: 'Day mode only.', link: 'https://www.youtube.com/results?search_query=Waltz+of+4+Left+Feet+Shirebound', linkLabel: 'Search on YouTube', where: 'on youtube', art: 'c-waltz' },
+    { title: 'Tabi Ka Sakin', artist: 'Shnti', note: 'Day mode only.', link: 'https://www.youtube.com/results?search_query=Tabi+Ka+Sakin+Shnti', linkLabel: 'Search on YouTube', where: 'on youtube', art: 'c-tabi' }
+  ];
+  function listFor(m) {
+    return m === 'dark'
+      ? NIGHT_EXTRA.concat([WISH], BASE)
+      : DAY_EXTRA.concat(BASE);
+  }
+  var TRACKS = listFor('light');
 
   var BAD_DAY = [
     'Do your best and God will make you rest.',
@@ -748,7 +890,7 @@ body:not([data-mode="dark"]) .night-only { display: none !important; }
     art.innerHTML = '<svg viewBox="0 0 64 64" aria-hidden="true"><use href="#' + t.art + '"></use></svg>';
     b.appendChild(art);
     span('ti', t.title);
-    span('on', ext ? 'on spotify' : 'playing');
+    span('on', ext ? (t.where || 'on spotify') : 'playing');
     span('nt', t.artist + ' · ' + t.note);
     b.addEventListener('click', function () {
       if (ext) { cur = i; if (playing) pauseMusic(); else render(); return; }
@@ -761,7 +903,7 @@ body:not([data-mode="dark"]) .night-only { display: none !important; }
   }
   function applyTracks(m) {
     var prev = TRACKS[cur];
-    TRACKS = m === 'dark' ? NIGHT_EXTRA.concat(BASE) : BASE.slice();
+    TRACKS = listFor(m);
     var at = TRACKS.indexOf(prev);
     if (at >= 0) cur = at;
     else {
@@ -790,7 +932,7 @@ body:not([data-mode="dark"]) .night-only { display: none !important; }
     npArt.setAttribute('href', '#' + t.art);
     npNote.textContent = ext ? t.artist + ' · ' + t.note : t.note;
     npLink.hidden = !ext;
-    if (ext) { npLink.href = t.link; barFill.style.width = '0%'; tm.textContent = ''; }
+    if (ext) { npLink.href = t.link; npLink.textContent = t.linkLabel || 'Open in Spotify'; barFill.style.width = '0%'; tm.textContent = ''; }
     fabText.textContent = playing ? 'Pause' : 'Play music';
     trkBtns.forEach(function (b, i) {
       var tt = TRACKS[i];
@@ -871,9 +1013,51 @@ body:not([data-mode="dark"]) .night-only { display: none !important; }
   document.getElementById('pgAgain').addEventListener('click', function () { pgI = 0; pgYes = 0; pgShow(); });
   pgShow();
 
+  /* ---------- Vocabulary corner ---------- */
+  var WORDS = [
+    { w: 'sesquipedalian', p: '/ses-kwih-peh-DAY-lee-un/ · adjective', d: 'Fond of using long words.', e: 'Carl needed a second tab open for the dictionary.' },
+    { w: 'petrichor', p: '/PET-rih-kor/ · noun', d: 'The earthy smell in the air when rain hits dry ground.', e: 'The reason everyone opens the window after it rains.' },
+    { w: 'serendipity', p: '/sair-un-DIP-ih-tee/ · noun', d: 'Finding something good by accident.', e: 'A 200 peso bill in your old jeans.' },
+    { w: 'ephemeral', p: '/ih-FEM-er-ul/ · adjective', d: 'Lasting for a very short time.', e: 'Free shipping vouchers.' },
+    { w: 'mellifluous', p: '/muh-LIF-loo-us/ · adjective', d: 'Sweet and smooth to hear.', e: 'A calm voice on late-night radio.' },
+    { w: 'defenestrate', p: '/dee-FEN-uh-strayt/ · verb', d: 'To throw someone or something out of a window.', e: 'What I would do to my 5 a.m. alarm.' },
+    { w: 'ineffable', p: '/in-EF-uh-bul/ · adjective', d: 'Too great or too strong to put into words.', e: 'Winning a team fight at 1 HP.' },
+    { w: 'sonder', p: '/SON-der/ · noun', d: 'The realization that every stranger you pass has a life as full as yours.', e: 'Looking at the person across the jeepney and wondering about their Monday.' }
+  ];
+  var wI = 0;
+  function wShow() {
+    var x = WORDS[wI];
+    document.getElementById('wCount').textContent = 'Word ' + (wI + 1) + ' of ' + WORDS.length;
+    document.getElementById('wWord').textContent = x.w;
+    document.getElementById('wPron').textContent = x.p;
+    document.getElementById('wDef').textContent = x.d;
+    document.getElementById('wEg').textContent = '“' + x.e + '”';
+  }
+  document.getElementById('wNext').addEventListener('click', function () { wI = (wI + 1) % WORDS.length; wShow(); });
+  wShow();
+
+  /* ---------- 8-ball ---------- */
+  var BALL = [
+    'Oo.', 'Hindi.', 'Malabo.', 'Go for it.', 'Wag na.',
+    'Siguro, pero huwag mong ipilit.', 'Sleep on it muna.', 'Ask again after kumain ka.',
+    'Yes, but charge your phone first.', 'Depende kung may load ka pa.',
+    'Kung gusto, may paraan. Kung ayaw, may dahilan.', 'Tanungin mo si Google.'
+  ];
+  var ballA = document.getElementById('ballA');
+  var ballLast = -1;
+  function ballAsk() {
+    var i;
+    do { i = Math.floor(Math.random() * BALL.length); } while (i === ballLast);
+    ballLast = i;
+    ballA.textContent = BALL[i];
+    ballA.classList.remove('pop'); void ballA.offsetWidth; ballA.classList.add('pop');
+  }
+  document.getElementById('ballBtn').addEventListener('click', ballAsk);
+  document.getElementById('ballQ').addEventListener('keydown', function (e) { if (e.key === 'Enter') ballAsk(); });
+
   sync();
   render();
 })();
 </script>
-
-</body></html>
+</body>
+</html>
