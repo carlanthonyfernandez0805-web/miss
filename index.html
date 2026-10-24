@@ -763,14 +763,8 @@ body:not([data-mode="dark"]) .night-only { display: none !important; }
   if (hashTheme === 'dark' || hashTheme === 'light') root.setAttribute('data-theme', hashTheme);
 
   /* ---------- Songs: edit this list ---------- */
-  var BASE = [
-    { title: 'Your song #1', artist: 'Carl will fill this in', note: 'For the drive, the commute, or being stuck in traffic.', src: '' },
-    { title: 'Your song #2', artist: 'Carl will fill this in', note: 'For good days. Turn it up.', src: '' },
-    { title: 'Your song #3', artist: 'Carl will fill this in', note: 'For the in-between hours.', src: '' },
-    { title: 'Your song #4', artist: 'Carl will fill this in', note: 'For a bad day. See the button above.', src: '' },
-    { title: 'Your song #5', artist: 'Carl will fill this in', note: 'For late at night.', src: '' }
-  ];
-  /* src: '' plays a soft built-in demo tune. Put a data: URL (or hosted file) here to play a real song. */
+  var BASE = [];
+  
 
   /* Added to the playlist in night mode only. These open in Spotify because the page cannot stream from it. */
   var NIGHT_EXTRA = [
@@ -1233,6 +1227,13 @@ body:not([data-mode="dark"]) .night-only { display: none !important; }
         body: '<circle r="41" fill="#F9B3CC"/>' + ring(8, 27, 13, '#F58DB4', 0, '#EE6C92') + ring(6, 14, 12, '#F27AA6', 30, '#E85F92') +
           '<circle r="10" fill="#E85F92"/>' + ring(5, 4, 1.8, '#FFD36B', 0) },
       { id: 'lavender', name: 'Lavender', meaning: 'calm and peace.', body: lav },
+      { id: 'lily', name: 'Lily', meaning: 'purity and refined beauty.',
+        body: [0,120,240].map(function (r) { return '<path d="M0 2Q-16 -22 0 -47Q16 -22 0 2Z" fill="#FFB38A" transform="rotate(' + r + ')"/>'; }).join('') +
+          [60,180,300].map(function (r) { return '<path d="M0 2Q-17 -20 0 -43Q17 -20 0 2Z" fill="#FF8A5C" stroke="#F0703F" stroke-width="1" transform="rotate(' + r + ')"/>'; }).join('') +
+          [0,60,120,180,240,300].map(function (r) { return '<path d="M0 -4V-34" stroke="#fff" stroke-opacity=".55" stroke-width="2" stroke-linecap="round" transform="rotate(' + r + ')"/>'; }).join('') +
+          ring(6, 15, 1.6, '#B8421F', 30) + ring(6, 24, 1.6, '#B8421F', 0) +
+          [20,80,140,200,260,320].map(function (r) { return '<path d="M0 0L0 -17" stroke="#C99A2E" stroke-width="1.6" transform="rotate(' + r + ')"/><ellipse cx="0" cy="-19" rx="2.2" ry="4" fill="#8A3B1B" transform="rotate(' + r + ')"/>'; }).join('') +
+          '<circle r="4" fill="#FFE08A"/>' },
       { id: 'sweetpea', name: 'Sweet pea', meaning: 'thank you for a lovely time.',
         body: '<ellipse cx="-15" cy="-10" rx="19" ry="24" fill="#C9A6E8" transform="rotate(-22 -15 -10)"/><ellipse cx="15" cy="-10" rx="19" ry="24" fill="#B793E0" transform="rotate(22 15 -10)"/>' +
           '<ellipse cx="0" cy="16" rx="13" ry="16" fill="#F4A6D0"/><path d="M0 -4V28" stroke="#9D74C9" stroke-width="2" stroke-linecap="round"/>' +
