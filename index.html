@@ -182,6 +182,25 @@ body:not([data-mode="dark"]) .night-only { display: none !important; }
 .l-night { left: 26px; }
 .switch[aria-checked="false"] .l-night, .switch[aria-checked="true"] .l-day { opacity: 0; }
 .hint { color: var(--muted); font-size: 0.95rem; max-width: 40ch; }
+.gum-btn {
+  display: inline-flex; align-items: center; gap: 14px; margin-top: 6px;
+  padding: 10px 24px 10px 14px; border-radius: 999px; text-decoration: none; color: var(--fg);
+  background: var(--surface); border: 2px solid var(--accent); box-shadow: 0 5px 0 var(--accent);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.gum-btn:hover { transform: translateY(-2px); box-shadow: 0 7px 0 var(--accent); }
+.gum-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--accent); }
+.gum-ico { width: 46px; height: 54px; flex: none; overflow: visible; }
+.gum-btn:hover .gum-ico { animation: gwiggle 0.6s ease-in-out; }
+.gum-txt { display: grid; gap: 2px; min-width: 0; }
+.gum-txt b { font: 800 1.1rem/1.1 var(--font-display); letter-spacing: -0.01em; }
+.gum-txt span { font-size: 0.85rem; color: var(--muted); }
+.gb { transform-box: fill-box; transform-origin: center; animation: gbob 2.4s ease-in-out infinite; }
+.gb2 { animation-delay: -0.8s; }
+.gb3 { animation-delay: -1.6s; }
+@keyframes gbob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2.5px); } }
+@keyframes gwiggle { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-9deg); } 75% { transform: rotate(9deg); } }
+@media (prefers-reduced-motion: reduce) { .gb, .gum-btn:hover .gum-ico { animation: none; } }
 
 /* cards */
 .cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 28px; }
@@ -447,6 +466,22 @@ body:not([data-mode="dark"]) .night-only { display: none !important; }
         </span>
       </button>
       <p class="hint" id="hint">Sound on. The first flip starts the music.</p>
+      <a class="gum-btn" id="gumLink" href="gumball.html#light">
+        <svg class="gum-ico" viewBox="0 0 48 56" aria-hidden="true">
+          <circle cx="24" cy="19" r="15" fill="var(--tint)" stroke="var(--accent)" stroke-width="2.4"/>
+          <g>
+            <circle class="gb gb1" cx="17" cy="23" r="4.8" fill="#FFC857"/>
+            <circle class="gb gb2" cx="28" cy="24" r="4.8" fill="#FF6B9A"/>
+            <circle class="gb gb3" cx="22" cy="15" r="4.8" fill="#B79CF2"/>
+            <circle class="gb gb1" cx="31" cy="15" r="3.8" fill="#FFC857"/>
+          </g>
+          <rect x="8" y="31" width="32" height="6" rx="3" fill="var(--accent)"/>
+          <path d="M11 37h26v11a4 4 0 0 1-4 4H15a4 4 0 0 1-4-4z" fill="var(--accent)"/>
+          <circle cx="24" cy="43" r="4.2" fill="var(--surface)"/>
+          <rect x="19" y="48" width="10" height="3" rx="1.5" fill="var(--tint)" fill-opacity=".55"/>
+        </svg>
+        <span class="gum-txt"><b>Gumball game</b><span>Roll for a song</span></span>
+      </a>
     </div>
   </header>
 
@@ -644,6 +679,10 @@ body:not([data-mode="dark"]) .night-only { display: none !important; }
   var sw = document.getElementById('vibe');
   var fall = document.getElementById('fall');
   var hint = document.getElementById('hint');
+  var gumLink = document.getElementById('gumLink');
+  /* coming back from the game keeps the theme she picked there */
+  var hashTheme = (location.hash || '').slice(1);
+  if (hashTheme === 'dark' || hashTheme === 'light') root.setAttribute('data-theme', hashTheme);
 
   /* ---------- Songs: edit this list ---------- */
   var BASE = [
@@ -746,6 +785,7 @@ body:not([data-mode="dark"]) .night-only { display: none !important; }
     if (m === currentMode) return;
     currentMode = m;
     body.setAttribute('data-mode', m);
+    gumLink.href = 'gumball.html#' + m;
     sw.setAttribute('aria-checked', m === 'dark' ? 'true' : 'false');
     applyTracks(m);
     if (firstSpawn) { firstSpawn = false; spawn(m); }
