@@ -284,7 +284,7 @@ body:not([data-mode="dark"]) .night-only { display: none !important; }
 .bq { display: grid; grid-template-columns: minmax(0, 400px) minmax(0, 1fr); gap: clamp(20px, 4vw, 40px); align-items: start; margin-top: 26px; }
 @media (max-width: 760px) { .bq { grid-template-columns: minmax(0, 1fr); } }
 .bq-stage { position: relative; background: var(--tint); border-radius: 28px; padding: 16px; display: grid; place-items: center; }
-#bq-svg { width: 100%; max-width: 380px; height: auto; display: block; }
+.bq-svg { width: 100%; max-width: 380px; height: auto; display: block; }
 .bq-hint { position: absolute; top: 20%; left: 50%; transform: translateX(-50%); margin: 0; max-width: 16ch; text-align: center; font: 600 1.05rem/1.3 var(--font-display); color: var(--muted); pointer-events: none; }
 .bq-ctl { display: grid; gap: 14px; min-width: 0; }
 .bq-tray { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
@@ -641,7 +641,7 @@ body:not([data-mode="dark"]) .night-only { display: none !important; }
     <p class="sub">Pick your flowers and a wrap. The meanings come from traditional flower language.</p>
     <div class="bq">
       <div class="bq-stage">
-        <svg id="bq-svg" viewBox="0 100 360 340" role="img" aria-label="Your bouquet">
+        <svg id="bq-svg" class="bq-svg" viewBox="0 100 360 340" role="img" aria-label="Your bouquet">
           <defs id="bqDefs"></defs>
           <g id="bqLayer"></g>
         </svg>
@@ -659,6 +659,33 @@ body:not([data-mode="dark"]) .night-only { display: none !important; }
           <button class="btn ghost" id="bqClear" type="button">Clear</button>
           <button class="btn ghost" id="bqRandom" type="button">Surprise me</button>
           <button class="btn" id="bqSave" type="button">Save picture</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="night-only" aria-labelledby="cg-h">
+    <h2 id="cg-h">Make a bouquet, night edition</h2>
+    <p class="sub">Same idea, different sticks. Pick a few and a wrap.</p>
+    <div class="bq">
+      <div class="bq-stage">
+        <svg id="cgSvg" class="bq-svg" viewBox="0 100 360 340" role="img" aria-label="Your night bouquet">
+          <g id="cgLayer"></g>
+        </svg>
+        <p class="bq-hint" id="cgHint" hidden>Tap a stick to start.</p>
+      </div>
+      <div class="bq-ctl">
+        <div class="bq-tray" id="cgTray" role="group" aria-label="Sticks to add"></div>
+        <p class="bq-meaning" id="cgMeaning" aria-live="polite">Tap one to add it. Clear to start over.</p>
+        <p class="bq-count" id="cgCount"></p>
+        <div class="bq-wraps" id="cgWraps" role="group" aria-label="Wrapping paper"><span class="bq-wlabel">Wrap</span></div>
+        <label class="sr" for="cgNote">Note for the tag</label>
+        <input class="field" id="cgNote" type="text" maxlength="30" placeholder="Write a note for the tag" autocomplete="off">
+        <div class="bq-actions">
+          <button class="btn ghost" id="cgUndo" type="button">Undo</button>
+          <button class="btn ghost" id="cgClear" type="button">Clear</button>
+          <button class="btn ghost" id="cgRandom" type="button">Surprise me</button>
+          <button class="btn" id="cgSave" type="button">Save picture</button>
         </div>
       </div>
     </div>
@@ -1404,6 +1431,181 @@ body:not([data-mode="dark"]) .night-only { display: none !important; }
       img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(xml);
     });
 
+    render();
+  })();
+
+
+  /* ---------- Night bouquet (sticks) ---------- */
+  (function () {
+    var MAX = 9, PX = 180, PY = 330;
+    var ANG = [0, 12, 24, 35, 45], RAD = [172, 168, 160, 152, 144];
+    var JIT = [0, 3, -2, 2, -4, 3, -2, 4, -3];
+    function pos(i) {
+      var rank = Math.ceil(i / 2), side = i === 0 ? 0 : (i % 2 === 1 ? -1 : 1);
+      return { rank: rank, ang: side * ANG[rank] + JIT[i] * 0.5, R: RAD[rank] + JIT[i] };
+    }
+    var SM = '<path d="M0 -4C-7 -14 7 -22 0 -34" fill="none" stroke="#fff" stroke-opacity=".28" stroke-width="2.2" stroke-linecap="round"/>';
+    function cig(o) {
+      return function (len) {
+        var s = SM +
+          '<rect x="-5.5" y="14" width="11" height="' + (len - 14) + '" rx="2" fill="' + o.paper + '" stroke="#000" stroke-opacity=".15"/>' +
+          '<rect x="2" y="14" width="3.5" height="' + (len - 14) + '" fill="#000" fill-opacity=".07"/>';
+        if (o.band) s += '<rect x="-5.5" y="' + o.by + '" width="11" height="' + o.bh + '" fill="' + o.band + '"/>';
+        s += '<path d="M-5.5 15V7Q-4.5 2 -2 4Q0 0 2 4Q5 2 5.5 7V15Z" fill="#9A94A8"/>' +
+          '<rect x="-5.5" y="13" width="11" height="3.5" rx="1" fill="#FF6A2B"/><rect x="-3" y="13" width="6" height="2" fill="#FFC27A"/>';
+        return s;
+      };
+    }
+    function cigar(len) {
+      var s = SM + '<rect x="-8" y="12" width="16" height="' + (len - 12) + '" rx="5" fill="#7B4B2A" stroke="#4A2A14" stroke-opacity=".5"/>';
+      for (var k = 0; k < 7; k++) s += '<path d="M-8 ' + (22 + k * 11) + 'L8 ' + (16 + k * 11) + '" stroke="#5A3219" stroke-width="1.4" stroke-opacity=".7"/>';
+      s += '<rect x="-8" y="34" width="16" height="9" fill="#C9A227"/><rect x="-8" y="37" width="16" height="3" fill="#B01E2F"/>' +
+        '<path d="M-8 14V9Q-6 3 -2 5Q1 1 4 5Q8 3 8 9V14Z" fill="#9B97A6"/><rect x="-8" y="12" width="16" height="4" rx="2" fill="#FF6A2B"/><rect x="-4" y="12" width="8" height="2.2" fill="#FFC27A"/>';
+      return s;
+    }
+    function vape(len) {
+      return '<ellipse cx="-3" cy="-6" rx="6" ry="4" fill="#fff" fill-opacity=".3"/><ellipse cx="4" cy="-15" rx="8" ry="5" fill="#fff" fill-opacity=".22"/><ellipse cx="-2" cy="-26" rx="9" ry="5" fill="#fff" fill-opacity=".14"/>' +
+        '<rect x="-4.5" y="2" width="9" height="12" rx="3" fill="#8E86B8"/>' +
+        '<rect x="-8" y="12" width="16" height="' + (len - 12) + '" rx="6" fill="#2D2A4A" stroke="#6B63A0" stroke-opacity=".6"/>' +
+        '<rect x="-5" y="17" width="2.5" height="' + (len - 26) + '" rx="1.2" fill="#fff" fill-opacity=".16"/>' +
+        '<circle cx="0" cy="36" r="6" fill="#FF4FA8" fill-opacity=".25"/><circle cx="0" cy="36" r="2.6" fill="#FF4FA8"/>';
+    }
+    var ITEMS = [
+      { id: 'red', name: 'Marlboro Red', meaning: 'the classic. No drama, no fuss.', draw: cig({ paper: '#F6F3EF', band: '#D3232F', by: 36, bh: 9 }) },
+      { id: 'gold', name: 'Marlboro Gold', meaning: 'the smooth one. For people who are never in a hurry.', draw: cig({ paper: '#F6F3EF', band: '#D9A441', by: 36, bh: 9 }) },
+      { id: 'menthol', name: 'Menthol', meaning: 'cool on the outside, a little kick on the inside.', draw: cig({ paper: '#F2FAF7', band: '#3FBF9A', by: 36, bh: 9 }) },
+      { id: 'lights', name: 'Lights', meaning: '“Isa na lang.” It is never just one.', draw: cig({ paper: '#FFFFFF', band: '#B8C2D6', by: 38, bh: 4 }) },
+      { id: 'cigar', name: 'Cigar', meaning: 'for celebrating. You survived the week.', draw: cigar },
+      { id: 'vape', name: 'Vape', meaning: 'Carl is still learning this one.', draw: vape }
+    ];
+    var WRAPS = [
+      { name: 'Midnight', back: '#5B4A9E', front: '#8472CF', ribbon: '#FF4FA8' },
+      { name: 'Wine', back: '#A23358', front: '#CF5C80', ribbon: '#FFD36B' },
+      { name: 'Smoke', back: '#7C8496', front: '#B7BECB', ribbon: '#FF4FA8' },
+      { name: 'Kraft', back: '#C79B6D', front: '#DFBB92', ribbon: '#3A1F2D' }
+    ];
+    var byId = {};
+    ITEMS.forEach(function (f) { byId[f.id] = f; });
+    var stems = ['red', 'gold', 'cigar', 'menthol', 'vape', 'lights', 'red'];
+    var wrapI = 0;
+    var layer = document.getElementById('cgLayer');
+    var noteEl = document.getElementById('cgNote');
+    var meaningEl = document.getElementById('cgMeaning');
+    var countEl = document.getElementById('cgCount');
+    var hintEl = document.getElementById('cgHint');
+    function esc(t) { return t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+    function noteLines() {
+      var t = (noteEl.value || '').trim() || 'For Blaze';
+      var words = t.split(/\s+/), lines = [''], max = 15;
+      words.forEach(function (w) {
+        if (w.length > max) w = w.slice(0, max);
+        var cur = lines[lines.length - 1], joined = (cur ? cur + ' ' : '') + w;
+        if (joined.length <= max) lines[lines.length - 1] = joined;
+        else if (lines.length < 2) lines.push(w);
+      });
+      return lines;
+    }
+    function render(popIdx) {
+      var w = WRAPS[wrapI], s = '';
+      var items = stems.map(function (id, i) { return { id: id, i: i, p: pos(i) }; });
+      items.slice().sort(function (a, b) { return b.p.rank - a.p.rank || a.i - b.i; }).forEach(function (it) {
+        var p = it.p;
+        s += '<g transform="translate(' + PX + ' ' + PY + ') rotate(' + p.ang.toFixed(1) + ') translate(0 ' + (-p.R).toFixed(1) + ')">' +
+          '<g' + (it.i === popIdx ? ' class="bq-pop"' : '') + '>' + byId[it.id].draw(p.R + 16) + '</g></g>';
+      });
+      s += '<path d="M180 438L72 258Q180 292 288 258Z" fill="' + w.back + '"/>' +
+        '<path d="M180 438L288 258Q236 284 170 300Z" fill="' + w.front + '"/>' +
+        '<path d="M180 438L72 258Q122 286 170 300" fill="none" stroke="#000" stroke-opacity=".1" stroke-width="2"/>' +
+        '<path d="M72 258Q180 292 288 258" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="3" stroke-linecap="round"/>';
+      var rb = w.ribbon;
+      s += '<path d="M118 334Q180 350 242 334" fill="none" stroke="' + rb + '" stroke-width="11"/>' +
+        '<ellipse cx="158" cy="342" rx="23" ry="11" transform="rotate(-22 158 342)" fill="' + rb + '"/>' +
+        '<ellipse cx="202" cy="342" rx="23" ry="11" transform="rotate(22 202 342)" fill="' + rb + '"/>' +
+        '<path d="M178 350L160 386L172 381L177 394Z" fill="' + rb + '"/><path d="M182 350L200 386L188 381L183 394Z" fill="' + rb + '"/>' +
+        '<circle cx="180" cy="346" r="7.5" fill="' + rb + '" stroke="#fff" stroke-opacity=".45" stroke-width="1.5"/>';
+      var lines = noteLines();
+      var ty = lines.length === 1 ? 36 : [28, 45];
+      s += '<path d="M187 347Q215 352 239 362" fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="1.5"/>' +
+        '<g transform="translate(232 352) rotate(9)"><rect width="116" height="62" rx="8" fill="#FFFFFF" stroke="' + rb + '" stroke-width="2.5"/>' +
+        '<circle cx="10" cy="10" r="3.2" fill="#221B45" stroke="' + rb + '" stroke-width="1.5"/>';
+      lines.forEach(function (ln, i) {
+        s += '<text x="60" y="' + (lines.length === 1 ? ty : ty[i]) + '" text-anchor="middle" font-family="Trebuchet MS, Arial, sans-serif" font-size="13" font-weight="700" fill="#2A1B3D">' + esc(ln) + '</text>';
+      });
+      s += '</g>';
+      layer.innerHTML = s;
+      hintEl.hidden = stems.length > 0;
+      var tally = {}, order = [];
+      stems.forEach(function (id) { if (!tally[id]) { tally[id] = 0; order.push(id); } tally[id]++; });
+      countEl.textContent = stems.length + ' of ' + MAX + ' sticks' + (order.length ? ' · ' + order.map(function (id) { return byId[id].name + ' ×' + tally[id]; }).join(', ') : '');
+    }
+    function add(id) {
+      if (stems.length >= MAX) { meaningEl.textContent = 'The bouquet is full. Undo one to swap it.'; return; }
+      stems.push(id);
+      meaningEl.textContent = byId[id].name + ': ' + byId[id].meaning;
+      render(stems.length - 1);
+    }
+    var tray = document.getElementById('cgTray');
+    ITEMS.forEach(function (f) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'bq-f';
+      b.setAttribute('aria-label', 'Add ' + f.name);
+      b.innerHTML = '<svg viewBox="-50 -50 100 100" aria-hidden="true"><g transform="translate(-6 -44) rotate(16)">' + f.draw(78) + '</g></svg><span>' + f.name + '</span>';
+      b.addEventListener('click', function () { add(f.id); });
+      tray.appendChild(b);
+    });
+    var wrapsEl = document.getElementById('cgWraps');
+    var wrapBtns = [];
+    function setWrap(i) { wrapI = i; wrapBtns.forEach(function (x, j) { x.setAttribute('aria-pressed', j === i ? 'true' : 'false'); }); }
+    WRAPS.forEach(function (w, i) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'bq-w';
+      b.setAttribute('aria-label', w.name + ' wrap');
+      b.title = w.name;
+      b.style.background = 'linear-gradient(135deg,' + w.back + ' 50%,' + w.front + ' 50%)';
+      b.setAttribute('aria-pressed', i === wrapI ? 'true' : 'false');
+      b.addEventListener('click', function () { setWrap(i); render(); });
+      wrapsEl.appendChild(b); wrapBtns.push(b);
+    });
+    document.getElementById('cgUndo').addEventListener('click', function () {
+      if (stems.length) { var id = stems.pop(); meaningEl.textContent = 'Took out the ' + byId[id].name + '.'; render(); }
+    });
+    document.getElementById('cgClear').addEventListener('click', function () {
+      stems = []; meaningEl.textContent = 'Fresh start. Tap one to add it.'; render();
+    });
+    document.getElementById('cgRandom').addEventListener('click', function () {
+      var n = 6 + Math.floor(Math.random() * 4);
+      stems = [];
+      for (var i = 0; i < n; i++) stems.push(ITEMS[Math.floor(Math.random() * ITEMS.length)].id);
+      setWrap(Math.floor(Math.random() * WRAPS.length));
+      meaningEl.textContent = 'A surprise bouquet. Change anything you like.';
+      render(n - 1);
+    });
+    noteEl.addEventListener('input', function () { render(); });
+    document.getElementById('cgSave').addEventListener('click', function () {
+      var clone = document.getElementById('cgSvg').cloneNode(true);
+      clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+      clone.setAttribute('width', '720'); clone.setAttribute('height', '680');
+      var bg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      bg.setAttribute('x', '0'); bg.setAttribute('y', '100'); bg.setAttribute('width', '360'); bg.setAttribute('height', '340'); bg.setAttribute('fill', '#221B45');
+      clone.insertBefore(bg, clone.firstChild);
+      var xml = new XMLSerializer().serializeToString(clone);
+      var img = new Image();
+      img.onload = function () {
+        try {
+          var c = document.createElement('canvas'); c.width = 720; c.height = 680;
+          c.getContext('2d').drawImage(img, 0, 0);
+          c.toBlob(function (blob) {
+            if (!blob) { meaningEl.textContent = 'Could not save the picture. Try a screenshot instead.'; return; }
+            var a = document.createElement('a');
+            a.href = URL.createObjectURL(blob); a.download = 'night-bouquet-for-blaze.png';
+            document.body.appendChild(a); a.click(); a.remove();
+            meaningEl.textContent = 'Saved. Check your downloads.';
+          }, 'image/png');
+        } catch (e) { meaningEl.textContent = 'Could not save the picture. Try a screenshot instead.'; }
+      };
+      img.onerror = function () { meaningEl.textContent = 'Could not save the picture. Try a screenshot instead.'; };
+      img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(xml);
+    });
     render();
   })();
 
