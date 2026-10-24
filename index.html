@@ -185,26 +185,41 @@ body:not([data-mode="dark"]) .night-only { display: none !important; }
 .switch-row { justify-self: stretch; }
 .switch-line { justify-self: stretch; width: 100%; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; }
 .gum-btn {
-  display: grid; place-items: center; flex: none; width: 78px; height: 78px; border-radius: 50%;
-  text-decoration: none; background: var(--surface); border: 2px solid var(--accent); box-shadow: 0 5px 0 var(--accent);
+  position: relative; display: grid; place-items: center; align-content: center; gap: 3px; flex: none;
+  width: 116px; height: 116px; border-radius: 50%;
+  text-decoration: none; background: var(--surface); border: 3px solid var(--accent);
+  box-shadow: 0 7px 0 var(--accent), 0 14px 34px var(--glow);
   transition: transform 0.15s, box-shadow 0.15s;
 }
-.gum-btn:hover { transform: translateY(-2px); box-shadow: 0 7px 0 var(--accent); }
-.gum-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--accent); }
-.gum-ico { width: 42px; height: 49px; display: block; overflow: visible; }
+.gum-btn::after {
+  content: ''; position: absolute; inset: -6px; border-radius: 50%; border: 3px solid var(--accent);
+  opacity: 0; pointer-events: none; animation: gring 2s ease-out infinite;
+}
+.gum-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 0 var(--accent), 0 16px 38px var(--glow); }
+.gum-btn:active { transform: translateY(6px); box-shadow: 0 1px 0 var(--accent), 0 6px 18px var(--glow); }
+.gum-ico { width: 48px; height: 56px; display: block; overflow: visible; }
 .gum-btn:hover .gum-ico { animation: gwiggle 0.6s ease-in-out; }
+.gum-press { font: 800 0.8rem/1 var(--font-mono); letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent); }
+@keyframes gring { 0% { transform: scale(0.96); opacity: 0.75; } 100% { transform: scale(1.22); opacity: 0; } }
 @media (max-width: 420px) {
-  .switch { --w: 196px; --h: 88px; }
-  .switch-line { flex-wrap: nowrap; gap: 12px; }
-  .gum-btn { width: 68px; height: 68px; }
-  .gum-ico { width: 36px; height: 42px; }
+  .switch { --w: 192px; --h: 88px; }
+  .switch-line { flex-wrap: nowrap; gap: 14px; }
+  .gum-btn { width: 96px; height: 96px; gap: 2px; }
+  .gum-ico { width: 38px; height: 44px; }
+  .gum-press { font-size: 0.7rem; }
+}
+@media (max-width: 350px) {
+  .switch { --w: 172px; --h: 80px; }
+  .switch-line { gap: 10px; }
+  .gum-btn { width: 86px; height: 86px; }
+  .gum-ico { width: 34px; height: 40px; }
 }
 .gb { transform-box: fill-box; transform-origin: center; animation: gbob 2.4s ease-in-out infinite; }
 .gb2 { animation-delay: -0.8s; }
 .gb3 { animation-delay: -1.6s; }
 @keyframes gbob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2.5px); } }
 @keyframes gwiggle { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-9deg); } 75% { transform: rotate(9deg); } }
-@media (prefers-reduced-motion: reduce) { .gb, .gum-btn:hover .gum-ico { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .gb, .gum-btn:hover .gum-ico { animation: none; } .gum-btn::after { animation: none; opacity: 0; } }
 
 /* cards */
 .cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 28px; }
@@ -484,6 +499,7 @@ body:not([data-mode="dark"]) .night-only { display: none !important; }
           <circle cx="24" cy="43" r="4.2" fill="var(--surface)"/>
           <rect x="19" y="48" width="10" height="3" rx="1.5" fill="var(--tint)" fill-opacity=".55"/>
         </svg>
+        <span class="gum-press">Press</span>
       </a>
       </div>
       <p class="hint" id="hint">Sound on. The first flip starts the music.</p>
