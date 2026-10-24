@@ -280,6 +280,35 @@ body:not([data-mode="dark"]) .night-only { display: none !important; }
 .pg-done[hidden] { display: none; }
 .btn.ghost { background: var(--surface); color: var(--fg); border: 1px solid var(--line); box-shadow: none; }
 
+/* bouquet maker */
+.bq { display: grid; grid-template-columns: minmax(0, 400px) minmax(0, 1fr); gap: clamp(20px, 4vw, 40px); align-items: start; margin-top: 26px; }
+@media (max-width: 760px) { .bq { grid-template-columns: minmax(0, 1fr); } }
+.bq-stage { position: relative; background: var(--tint); border-radius: 28px; padding: 16px; display: grid; place-items: center; }
+#bq-svg { width: 100%; max-width: 380px; height: auto; display: block; }
+.bq-hint { position: absolute; top: 20%; left: 50%; transform: translateX(-50%); margin: 0; max-width: 16ch; text-align: center; font: 600 1.05rem/1.3 var(--font-display); color: var(--muted); pointer-events: none; }
+.bq-ctl { display: grid; gap: 14px; min-width: 0; }
+.bq-tray { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.bq-f {
+  display: grid; justify-items: center; align-content: start; gap: 4px; padding: 8px 4px; cursor: pointer;
+  background: var(--surface); color: var(--fg); border: 1px solid var(--line); border-radius: 16px;
+  font: 600 0.72rem/1.2 var(--font-body); text-align: center; min-width: 0;
+}
+.bq-f svg { width: 44px; height: 44px; display: block; }
+.bq-f:hover { border-color: var(--accent); }
+.bq-f:active { transform: scale(0.96); }
+.bq-meaning { margin: 0; min-height: 3em; background: var(--tint); border-radius: 14px; padding: 10px 14px; font-weight: 600; }
+.bq-count { margin: 0; font: 500 0.8rem/1.4 var(--font-mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.bq-wraps { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.bq-wlabel { font: 500 0.8rem/1 var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-right: 4px; }
+.bq-w { width: 44px; height: 44px; padding: 0; border-radius: 50%; cursor: pointer; border: 3px solid var(--surface); outline: 2px solid var(--line); }
+.bq-w[aria-pressed="true"] { outline: 3px solid var(--accent); }
+.bq-ctl .field { flex: none; width: 100%; }
+.bq-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.bq-actions .btn { padding: 14px 20px; font-size: 0.95rem; }
+.bq-pop { transform-box: fill-box; transform-origin: center; animation: bpop 0.45s cubic-bezier(0.3, 1.5, 0.5, 1); }
+@keyframes bpop { from { transform: scale(0); } to { transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) { .bq-pop { animation: none; } }
+
 /* vocabulary, roles, 8-ball */
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .card.word { max-width: 560px; margin-top: 26px; gap: 8px; }
@@ -604,6 +633,34 @@ body:not([data-mode="dark"]) .night-only { display: none !important; }
         <p>Pretty too.</p>
       </article>
 
+    </div>
+  </section>
+
+  <section aria-labelledby="bq-h">
+    <h2 id="bq-h">Make a bouquet</h2>
+    <p class="sub">Pick your flowers and a wrap. The meanings come from traditional flower language.</p>
+    <div class="bq">
+      <div class="bq-stage">
+        <svg id="bq-svg" viewBox="0 100 360 340" role="img" aria-label="Your bouquet">
+          <defs id="bqDefs"></defs>
+          <g id="bqLayer"></g>
+        </svg>
+        <p class="bq-hint" id="bqHint" hidden>Tap a flower to start.</p>
+      </div>
+      <div class="bq-ctl">
+        <div class="bq-tray" id="bqTray" role="group" aria-label="Flowers to add"></div>
+        <p class="bq-meaning" id="bqMeaning" aria-live="polite">Tap a flower to add it. Clear to start over.</p>
+        <p class="bq-count" id="bqCount"></p>
+        <div class="bq-wraps" id="bqWraps" role="group" aria-label="Wrapping paper"><span class="bq-wlabel">Wrap</span></div>
+        <label class="sr" for="bqNote">Note for the tag</label>
+        <input class="field" id="bqNote" type="text" maxlength="30" placeholder="Write a note for the tag" autocomplete="off">
+        <div class="bq-actions">
+          <button class="btn ghost" id="bqUndo" type="button">Undo</button>
+          <button class="btn ghost" id="bqClear" type="button">Clear</button>
+          <button class="btn ghost" id="bqRandom" type="button">Surprise me</button>
+          <button class="btn" id="bqSave" type="button">Save picture</button>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -1115,6 +1172,239 @@ body:not([data-mode="dark"]) .night-only { display: none !important; }
   }
   document.getElementById('ballBtn').addEventListener('click', ballAsk);
   document.getElementById('ballQ').addEventListener('keydown', function (e) { if (e.key === 'Enter') ballAsk(); });
+
+  /* ---------- Bouquet maker ---------- */
+  (function () {
+    var MAX = 9, PX = 180, PY = 330;
+    function petals(n, cy, rx, ry, fill, stroke, rot0) {
+      var s = '';
+      for (var i = 0; i < n; i++) {
+        s += '<ellipse cx="0" cy="' + cy + '" rx="' + rx + '" ry="' + ry + '" fill="' + fill + '"' +
+          (stroke ? ' stroke="' + stroke + '" stroke-width="1"' : '') +
+          ' transform="rotate(' + ((rot0 || 0) + i * 360 / n).toFixed(1) + ')"/>';
+      }
+      return s;
+    }
+    function ring(n, rad, r, fill, rot0, stroke) {
+      var s = '';
+      for (var i = 0; i < n; i++) {
+        var a = ((rot0 || 0) + i * 360 / n) * Math.PI / 180;
+        s += '<circle cx="' + (rad * Math.sin(a)).toFixed(1) + '" cy="' + (-rad * Math.cos(a)).toFixed(1) + '" r="' + r + '" fill="' + fill + '"' +
+          (stroke ? ' stroke="' + stroke + '" stroke-width="1"' : '') + '/>';
+      }
+      return s;
+    }
+    var lav = '<path d="M0 -44V46" stroke="#7DB27F" stroke-width="3" stroke-linecap="round"/>';
+    for (var li = 0; li < 9; li++) {
+      var ly = -34 + li * 8.5, lw = 4 + li * 0.7;
+      var lc = li % 2 ? '#B79CF2' : '#9B7BE0';
+      lav += '<ellipse cx="' + (-lw).toFixed(1) + '" cy="' + ly + '" rx="' + (4.4 + li * 0.25).toFixed(1) + '" ry="6.4" fill="' + lc + '"/>' +
+        '<ellipse cx="' + lw.toFixed(1) + '" cy="' + (ly + 3) + '" rx="' + (4.4 + li * 0.25).toFixed(1) + '" ry="6.4" fill="' + (li % 2 ? '#9B7BE0' : '#B79CF2') + '"/>';
+    }
+    lav += '<ellipse cx="0" cy="-42" rx="4.2" ry="7" fill="#9B7BE0"/>';
+    var bseed = 5;
+    function brnd() { bseed = (bseed * 9301 + 49297) % 233280; return bseed / 233280; }
+    var breath = '';
+    for (var bi = 0; bi < 18; bi++) {
+      var ba = brnd() * Math.PI * 2, br = 10 + brnd() * 28;
+      var bx = (br * Math.cos(ba)).toFixed(1), by = (br * Math.sin(ba)).toFixed(1);
+      breath += '<path d="M0 6L' + bx + ' ' + by + '" stroke="#8FBF8F" stroke-width="1.2"/>';
+    }
+    bseed = 5;
+    for (var bj = 0; bj < 18; bj++) {
+      var ca = brnd() * Math.PI * 2, cr = 10 + brnd() * 28;
+      breath += '<circle cx="' + (cr * Math.cos(ca)).toFixed(1) + '" cy="' + (cr * Math.sin(ca)).toFixed(1) + '" r="' + (4 + brnd() * 2.4).toFixed(1) + '" fill="#fff" stroke="#E9DDF5" stroke-width="1"/>';
+    }
+
+    var FLOWERS = [
+      { id: 'rose', name: 'Rose', meaning: 'admiration and appreciation.',
+        body: '<circle r="42" fill="#D63A62"/>' + petals(5, -24, 19, 17, '#EE6C92', '#C72E57', 0) + petals(5, -12, 12, 11, '#F58EAB', '#D63A62', 36) +
+          '<circle r="9" fill="#C72E57"/><path d="M-3 0a3 3 0 1 1 6 0a6 6 0 1 1-12 0" fill="none" stroke="#9E1F46" stroke-width="2" stroke-linecap="round"/>' +
+          '<ellipse cx="-14" cy="-26" rx="7" ry="4" fill="#fff" fill-opacity=".3" transform="rotate(-30 -14 -26)"/>' },
+      { id: 'tulip', name: 'Tulip', meaning: 'cheerful thoughts.',
+        body: '<path d="M-27 -32Q-33 12 0 32Q33 12 27 -32L13 -14L0 -38L-13 -14Z" fill="#FFAA2B"/><path d="M-13 -14L0 -38L13 -14Q10 20 0 30Q-10 20 -13 -14Z" fill="#FFD25E"/>' +
+          '<path d="M-21 -22Q-23 6 -7 22" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="3" stroke-linecap="round"/>' },
+      { id: 'daisy', name: 'Daisy', meaning: 'new beginnings.',
+        body: petals(14, -28, 7, 17, '#FFFFFF', '#E2D6F0', 0) + '<circle r="13" fill="#FFC83D"/>' + ring(6, 6, 2, '#F59E0B', 0) },
+      { id: 'sunflower', name: 'Sunflower', meaning: 'happiness and positivity.',
+        body: petals(18, -33, 6, 15, '#FFC83D', null, 0) + petals(18, -28, 5.5, 12, '#FFAE1A', null, 10) +
+          '<circle r="19" fill="#5A3420"/>' + ring(10, 12, 2, '#8A5A36', 0) + ring(5, 5.5, 1.6, '#8A5A36', 18) },
+      { id: 'peony', name: 'Peony', meaning: 'good fortune and a happy life.',
+        body: '<circle r="41" fill="#F9B3CC"/>' + ring(8, 27, 13, '#F58DB4', 0, '#EE6C92') + ring(6, 14, 12, '#F27AA6', 30, '#E85F92') +
+          '<circle r="10" fill="#E85F92"/>' + ring(5, 4, 1.8, '#FFD36B', 0) },
+      { id: 'lavender', name: 'Lavender', meaning: 'calm and peace.', body: lav },
+      { id: 'sweetpea', name: 'Sweet pea', meaning: 'thank you for a lovely time.',
+        body: '<ellipse cx="-15" cy="-10" rx="19" ry="24" fill="#C9A6E8" transform="rotate(-22 -15 -10)"/><ellipse cx="15" cy="-10" rx="19" ry="24" fill="#B793E0" transform="rotate(22 15 -10)"/>' +
+          '<ellipse cx="0" cy="16" rx="13" ry="16" fill="#F4A6D0"/><path d="M0 -4V28" stroke="#9D74C9" stroke-width="2" stroke-linecap="round"/>' +
+          '<path d="M-22 -20Q-12 -8 -5 6M22 -20Q12 -8 5 6" stroke="#fff" stroke-opacity=".5" stroke-width="2" fill="none"/>' },
+      { id: 'breath', name: 'Baby’s breath', meaning: 'innocence and sweetness.', body: breath }
+    ];
+    var WRAPS = [
+      { name: 'Blush', back: '#F4A9BE', front: '#FBD3DE', ribbon: '#D63A62' },
+      { name: 'Kraft', back: '#C79B6D', front: '#DFBB92', ribbon: '#3A1F2D' },
+      { name: 'Lilac', back: '#B79CF2', front: '#D6C6F8', ribbon: '#E8458F' },
+      { name: 'Mint', back: '#8FD6BC', front: '#BDEBDA', ribbon: '#E8618A' },
+      { name: 'Ivory', back: '#E7DCCB', front: '#FFFFFF', ribbon: '#D63A62' }
+    ];
+    var RANK_ANG = [0, 16, 31, 44, 55], RANK_R = [150, 144, 134, 124, 116], RANK_S = [80, 76, 72, 68, 64];
+    var JIT = [0, 4, -3, 2, -5, 3, -2, 5, -4];
+    function slotPos(i) {
+      var rank = Math.ceil(i / 2), side = i === 0 ? 0 : (i % 2 === 1 ? -1 : 1);
+      var ang = side * RANK_ANG[rank], R = RANK_R[rank] + JIT[i], rad = ang * Math.PI / 180;
+      return { x: PX + R * Math.sin(rad), y: PY - R * Math.cos(rad), rank: rank, side: side, size: RANK_S[rank], tilt: ang * 0.6 + JIT[i] };
+    }
+    var LEAVES = [[-70, 118], [-52, 136], [-34, 150], [-16, 158], [16, 158], [34, 150], [52, 136], [70, 118], [0, 166]];
+    var LEAF_COLORS = ['#5FA66B', '#7BBF7F', '#4A8F59'];
+
+    var byId = {};
+    FLOWERS.forEach(function (f) { byId[f.id] = f; });
+    var defs = document.getElementById('bqDefs');
+    defs.innerHTML = FLOWERS.map(function (f) { return '<symbol id="bq-' + f.id + '" viewBox="-50 -50 100 100">' + f.body + '</symbol>'; }).join('');
+
+    var stems = ['peony', 'rose', 'sunflower', 'tulip', 'daisy', 'lavender', 'sweetpea'];
+    var wrapI = 0;
+    var layer = document.getElementById('bqLayer');
+    var noteEl = document.getElementById('bqNote');
+    var meaningEl = document.getElementById('bqMeaning');
+    var countEl = document.getElementById('bqCount');
+    var hintEl = document.getElementById('bqHint');
+
+    function esc(t) { return t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+    function noteLines() {
+      var t = (noteEl.value || '').trim() || 'For Blaze';
+      var words = t.split(/\s+/), lines = [''], max = 15;
+      words.forEach(function (w) {
+        if (w.length > max) w = w.slice(0, max);
+        var cur = lines[lines.length - 1], joined = (cur ? cur + ' ' : '') + w;
+        if (joined.length <= max) lines[lines.length - 1] = joined;
+        else if (lines.length < 2) lines.push(w);
+      });
+      return lines;
+    }
+    function leaf(a, L, color) {
+      return '<path d="M0 0C-16 ' + (-L * 0.3).toFixed(0) + ' -15 ' + (-L * 0.75).toFixed(0) + ' 0 ' + (-L) + 'C15 ' + (-L * 0.75).toFixed(0) + ' 16 ' + (-L * 0.3).toFixed(0) + ' 0 0Z" fill="' + color +
+        '" transform="translate(' + PX + ' ' + PY + ') rotate(' + a + ')"/><path d="M0 -6V' + (-L * 0.85).toFixed(0) + '" stroke="#fff" stroke-opacity=".25" stroke-width="1.5" transform="translate(' + PX + ' ' + PY + ') rotate(' + a + ')"/>';
+    }
+
+    function render(popIdx) {
+      var w = WRAPS[wrapI], s = '';
+      LEAVES.forEach(function (l, i) { s += leaf(l[0], l[1], LEAF_COLORS[i % 3]); });
+      var items = stems.map(function (id, i) { return { id: id, i: i, p: slotPos(i) }; });
+      items.forEach(function (it) {
+        var p = it.p, mx = (p.x + PX) / 2 + p.side * 7, my = (p.y + 334) / 2;
+        s += '<path d="M' + p.x.toFixed(1) + ' ' + p.y.toFixed(1) + 'Q' + mx.toFixed(1) + ' ' + my.toFixed(1) + ' ' + PX + ' 336" fill="none" stroke="#5C9E62" stroke-width="3.5" stroke-linecap="round"/>';
+      });
+      s += '<path d="M180 438L72 258Q180 292 288 258Z" fill="' + w.back + '"/>' +
+        '<path d="M180 438L288 258Q236 284 170 300Z" fill="' + w.front + '"/>' +
+        '<path d="M180 438L72 258Q122 286 170 300" fill="none" stroke="#000" stroke-opacity=".08" stroke-width="2"/>' +
+        '<path d="M72 258Q180 292 288 258" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="3" stroke-linecap="round"/>';
+      items.slice().sort(function (a, b) { return b.p.rank - a.p.rank || a.i - b.i; }).forEach(function (it) {
+        var p = it.p, h = p.size / 2;
+        s += '<g transform="translate(' + p.x.toFixed(1) + ' ' + p.y.toFixed(1) + ') rotate(' + p.tilt.toFixed(1) + ')">' +
+          '<g' + (it.i === popIdx ? ' class="bq-pop"' : '') + '><use href="#bq-' + it.id + '" x="' + (-h) + '" y="' + (-h) + '" width="' + p.size + '" height="' + p.size + '"/></g></g>';
+      });
+      var rb = w.ribbon;
+      s += '<path d="M118 334Q180 350 242 334" fill="none" stroke="' + rb + '" stroke-width="11"/>' +
+        '<ellipse cx="158" cy="342" rx="23" ry="11" transform="rotate(-22 158 342)" fill="' + rb + '"/>' +
+        '<ellipse cx="202" cy="342" rx="23" ry="11" transform="rotate(22 202 342)" fill="' + rb + '"/>' +
+        '<path d="M178 350L160 386L172 381L177 394Z" fill="' + rb + '"/><path d="M182 350L200 386L188 381L183 394Z" fill="' + rb + '"/>' +
+        '<circle cx="180" cy="346" r="7.5" fill="' + rb + '" stroke="#fff" stroke-opacity=".45" stroke-width="1.5"/>';
+      var lines = noteLines();
+      var ty = lines.length === 1 ? 36 : [28, 45];
+      s += '<path d="M187 347Q215 352 239 362" fill="none" stroke="#3A1F2D" stroke-width="1.5"/>' +
+        '<g transform="translate(232 352) rotate(9)"><rect width="116" height="62" rx="8" fill="#FFFFFF" stroke="' + rb + '" stroke-width="2.5"/>' +
+        '<circle cx="10" cy="10" r="3.2" fill="#FFF1EE" stroke="' + rb + '" stroke-width="1.5"/>';
+      lines.forEach(function (ln, i) {
+        s += '<text x="60" y="' + (lines.length === 1 ? ty : ty[i]) + '" text-anchor="middle" font-family="Trebuchet MS, Arial, sans-serif" font-size="13" font-weight="700" fill="#3A1F2D">' + esc(ln) + '</text>';
+      });
+      s += '</g>';
+      layer.innerHTML = s;
+      hintEl.hidden = stems.length > 0;
+      var tally = {}, order = [];
+      stems.forEach(function (id) { if (!tally[id]) { tally[id] = 0; order.push(id); } tally[id]++; });
+      countEl.textContent = stems.length + ' of ' + MAX + ' stems' + (order.length ? ' · ' + order.map(function (id) { return byId[id].name + ' ×' + tally[id]; }).join(', ') : '');
+    }
+
+    function add(id) {
+      if (stems.length >= MAX) { meaningEl.textContent = 'The bouquet is full. Undo one to swap it.'; return; }
+      stems.push(id);
+      meaningEl.textContent = byId[id].name + ': ' + byId[id].meaning;
+      render(stems.length - 1);
+    }
+
+    var tray = document.getElementById('bqTray');
+    FLOWERS.forEach(function (f) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'bq-f';
+      b.setAttribute('aria-label', 'Add ' + f.name);
+      b.innerHTML = '<svg viewBox="-50 -50 100 100" aria-hidden="true"><use href="#bq-' + f.id + '" x="-50" y="-50" width="100" height="100"/></svg><span>' + f.name + '</span>';
+      b.addEventListener('click', function () { add(f.id); });
+      tray.appendChild(b);
+    });
+
+    var wrapsEl = document.getElementById('bqWraps');
+    var wrapBtns = [];
+    WRAPS.forEach(function (w, i) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'bq-w';
+      b.setAttribute('aria-label', w.name + ' wrap');
+      b.title = w.name;
+      b.style.background = 'linear-gradient(135deg,' + w.back + ' 50%,' + w.front + ' 50%)';
+      b.setAttribute('aria-pressed', i === wrapI ? 'true' : 'false');
+      b.addEventListener('click', function () {
+        wrapI = i;
+        wrapBtns.forEach(function (x, j) { x.setAttribute('aria-pressed', j === i ? 'true' : 'false'); });
+        render();
+      });
+      wrapsEl.appendChild(b); wrapBtns.push(b);
+    });
+
+    function setWrap(i) { wrapI = i; wrapBtns.forEach(function (x, j) { x.setAttribute('aria-pressed', j === i ? 'true' : 'false'); }); }
+    document.getElementById('bqUndo').addEventListener('click', function () {
+      if (stems.length) { var id = stems.pop(); meaningEl.textContent = 'Took out the ' + byId[id].name.toLowerCase() + '.'; render(); }
+    });
+    document.getElementById('bqClear').addEventListener('click', function () {
+      stems = []; meaningEl.textContent = 'Fresh start. Tap a flower to add it.'; render();
+    });
+    document.getElementById('bqRandom').addEventListener('click', function () {
+      var n = 6 + Math.floor(Math.random() * 4);
+      stems = [];
+      for (var i = 0; i < n; i++) stems.push(FLOWERS[Math.floor(Math.random() * FLOWERS.length)].id);
+      setWrap(Math.floor(Math.random() * WRAPS.length));
+      meaningEl.textContent = 'A surprise bouquet. Change anything you like.';
+      render(n - 1);
+    });
+    noteEl.addEventListener('input', function () { render(); });
+
+    document.getElementById('bqSave').addEventListener('click', function () {
+      var svg = document.getElementById('bq-svg');
+      var clone = svg.cloneNode(true);
+      clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+      clone.setAttribute('width', '720'); clone.setAttribute('height', '680');
+      var bg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      bg.setAttribute('x', '0'); bg.setAttribute('y', '100'); bg.setAttribute('width', '360'); bg.setAttribute('height', '340'); bg.setAttribute('fill', '#FFF1EE');
+      clone.insertBefore(bg, clone.firstChild);
+      var xml = new XMLSerializer().serializeToString(clone);
+      var img = new Image();
+      img.onload = function () {
+        try {
+          var c = document.createElement('canvas'); c.width = 720; c.height = 680;
+          c.getContext('2d').drawImage(img, 0, 0);
+          c.toBlob(function (blob) {
+            if (!blob) { meaningEl.textContent = 'Could not save the picture. Try a screenshot instead.'; return; }
+            var a = document.createElement('a');
+            a.href = URL.createObjectURL(blob); a.download = 'bouquet-for-blaze.png';
+            document.body.appendChild(a); a.click(); a.remove();
+            meaningEl.textContent = 'Saved. Check your downloads.';
+          }, 'image/png');
+        } catch (e) { meaningEl.textContent = 'Could not save the picture. Try a screenshot instead.'; }
+      };
+      img.onerror = function () { meaningEl.textContent = 'Could not save the picture. Try a screenshot instead.'; };
+      img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(xml);
+    });
+
+    render();
+  })();
 
   sync();
   render();
