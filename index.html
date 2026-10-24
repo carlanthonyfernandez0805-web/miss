@@ -182,19 +182,23 @@ body:not([data-mode="dark"]) .night-only { display: none !important; }
 .l-night { left: 26px; }
 .switch[aria-checked="false"] .l-night, .switch[aria-checked="true"] .l-day { opacity: 0; }
 .hint { color: var(--muted); font-size: 0.95rem; max-width: 40ch; }
+.switch-row { justify-self: stretch; }
+.switch-line { justify-self: stretch; width: 100%; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; }
 .gum-btn {
-  display: inline-flex; align-items: center; gap: 14px; margin-top: 6px;
-  padding: 10px 24px 10px 14px; border-radius: 999px; text-decoration: none; color: var(--fg);
-  background: var(--surface); border: 2px solid var(--accent); box-shadow: 0 5px 0 var(--accent);
+  display: grid; place-items: center; flex: none; width: 78px; height: 78px; border-radius: 50%;
+  text-decoration: none; background: var(--surface); border: 2px solid var(--accent); box-shadow: 0 5px 0 var(--accent);
   transition: transform 0.15s, box-shadow 0.15s;
 }
 .gum-btn:hover { transform: translateY(-2px); box-shadow: 0 7px 0 var(--accent); }
 .gum-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--accent); }
-.gum-ico { width: 46px; height: 54px; flex: none; overflow: visible; }
+.gum-ico { width: 42px; height: 49px; display: block; overflow: visible; }
 .gum-btn:hover .gum-ico { animation: gwiggle 0.6s ease-in-out; }
-.gum-txt { display: grid; gap: 2px; min-width: 0; }
-.gum-txt b { font: 800 1.1rem/1.1 var(--font-display); letter-spacing: -0.01em; }
-.gum-txt span { font-size: 0.85rem; color: var(--muted); }
+@media (max-width: 420px) {
+  .switch { --w: 196px; --h: 88px; }
+  .switch-line { flex-wrap: nowrap; gap: 12px; }
+  .gum-btn { width: 68px; height: 68px; }
+  .gum-ico { width: 36px; height: 42px; }
+}
 .gb { transform-box: fill-box; transform-origin: center; animation: gbob 2.4s ease-in-out infinite; }
 .gb2 { animation-delay: -0.8s; }
 .gb3 { animation-delay: -1.6s; }
@@ -457,6 +461,7 @@ body:not([data-mode="dark"]) .night-only { display: none !important; }
       <span class="night-only">Night mode. Lights down, music up.</span>
     </p>
     <div class="switch-row">
+      <div class="switch-line">
       <button id="vibe" class="switch" type="button" role="switch" aria-checked="false" aria-label="Day or night. Flipping it starts the music.">
         <span class="lbl l-day">day</span>
         <span class="lbl l-night">night</span>
@@ -465,8 +470,7 @@ body:not([data-mode="dark"]) .night-only { display: none !important; }
           <svg class="moon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
         </span>
       </button>
-      <p class="hint" id="hint">Sound on. The first flip starts the music.</p>
-      <a class="gum-btn" id="gumLink" href="gumball.html#light">
+      <a class="gum-btn" id="gumLink" href="gumball.html#light" aria-label="Gumball game. Roll for a song." title="Gumball game">
         <svg class="gum-ico" viewBox="0 0 48 56" aria-hidden="true">
           <circle cx="24" cy="19" r="15" fill="var(--tint)" stroke="var(--accent)" stroke-width="2.4"/>
           <g>
@@ -480,8 +484,9 @@ body:not([data-mode="dark"]) .night-only { display: none !important; }
           <circle cx="24" cy="43" r="4.2" fill="var(--surface)"/>
           <rect x="19" y="48" width="10" height="3" rx="1.5" fill="var(--tint)" fill-opacity=".55"/>
         </svg>
-        <span class="gum-txt"><b>Gumball game</b><span>Roll for a song</span></span>
       </a>
+      </div>
+      <p class="hint" id="hint">Sound on. The first flip starts the music.</p>
     </div>
   </header>
 
